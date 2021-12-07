@@ -14,6 +14,7 @@ fn main() {
     let piv1 = nums[nums.len()/2]; // median minimizes delta
     let piv2: usize = nums.iter().sum::<usize>() / nums.len(); // mean minimizes squared cost
     println!("Part1 Fuel Cost to Median({}): {}", piv1, costlinear(piv1, &nums));
+    println!("WARNING doesn't work for all inputs:");
     println!("Part2 Fuel Cost to Average({}): {}", piv2, cost(piv2, &nums));
 
 
