@@ -7,6 +7,18 @@ fn main() {
     let buf_reader = BufReader::new(file);
 
     let seed: Vec<usize> = buf_reader.lines().next().unwrap().unwrap().split(',').map(|n| { n.parse().unwrap() }).collect();
+
+    // Math trickery
+    let mut nums = seed.clone();
+    nums.sort();
+    let piv1 = nums[nums.len()/2]; // median minimizes delta
+    let piv2: usize = nums.iter().sum::<usize>() / nums.len(); // mean minimizes squared cost
+    println!("Part1 Fuel Cost to Median({}): {}", piv1, costlinear(piv1, &nums));
+    println!("Part2 Fuel Cost to Average({}): {}", piv2, cost(piv2, &nums));
+
+
+    // Was thinking about doing a binary search, but this was like... small
+    // Do exhaustive search instead within the min and max
     let min = seed.iter().min().unwrap();
     let max = seed.iter().max().unwrap();
 
@@ -27,7 +39,6 @@ fn main() {
         }
     }
 
-    // Was thinking about doing a binary search, but this was like... small
 
     println!("Part 1 best pivot {} with Fuel Cost: {}", p, c);
     println!("Part 2 best pivot {} with Fuel Cost: {}", p_2, c_2);
