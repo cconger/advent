@@ -17,6 +17,18 @@ impl Node {
     }
 }
 
+fn get_or_insert(lookup: &mut HashMap<String, usize>, nodes: &mut Vec<Node>, key: String) -> usize {
+    match lookup.get(&key) {
+        Some(v) => *v,
+        None => {
+            nodes.push(Node::new(key.to_string()));
+            let idx = nodes.len() - 1;
+            lookup.insert(key, idx);
+            idx
+        }
+    }
+}
+
 fn main() {
     // Read file line by line
     let file = File::open("input.txt").unwrap();
@@ -35,30 +47,17 @@ fn main() {
     let mut end: usize = 0;
 
     for i in (0..connections.len()).step_by(2) {
-        let origin_idx = match lookup.get(&connections[i]) {
-            Some(v) => *v,
-            None => {
-                nodes.push(Node::new(connections[i].to_string()));
-                let idx = nodes.len() - 1;
-                lookup.insert(connections[i].to_string(), idx);
-                if connections[i] == "start" { start = idx }
-                if connections[i] == "end" { end = idx }
-                idx
-            }
-        };
-        let dest_idx = match lookup.get(&connections[i+1]) {
-            Some(v) => *v,
-            None => {
-                nodes.push(Node::new(connections[i+1].to_string()));
-                let idx = nodes.len() - 1;
-                lookup.insert(connections[i+1].to_string(), idx);
-                if connections[i+1] == "start" { start = idx }
-                if connections[i+1] == "end" { end = idx }
-                idx
-            }
-        };
+        let origin_idx = get_or_insert(&mut lookup, &mut nodes, connections[i].to_string());
+        if connections[i] == "start" { start = origin_idx }
+        if connections[i] == "end" { end = origin_idx }
+
+        let dest_idx = get_or_insert(&mut lookup, &mut nodes, connections[i+1].to_string());
+        if connections[i+1] == "start" { start = dest_idx }
+        if connections[i+1] == "end" { end = dest_idx }
+
         let origin = &mut nodes[origin_idx];
         origin.neighbors.push(dest_idx);
+
         let dest = &mut nodes[dest_idx];
         dest.neighbors.push(origin_idx);
     }
