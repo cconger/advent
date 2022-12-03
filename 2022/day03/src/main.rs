@@ -13,7 +13,7 @@ fn main() {
         let part1 = &line[0..pivot];
         let part2 = &line[pivot..line.len()];
 
-        sum += common_letters(&[&part1, &part2]);
+        sum += common(&[&part1, &part2]);
     }
     println!("star1: {}", sum);
 
@@ -33,13 +33,13 @@ fn main() {
         let b = lines.next().unwrap().unwrap();
         let c = lines.next().unwrap().unwrap();
 
-        sum += common_letters(&[&a, &b, &c]);
+        sum += common(&[&a, &b, &c]);
     }
 
     println!("star2: {}", sum);
 }
 
-fn letter_to_score(c: char) -> u32 {
+fn rank(c: char) -> u32 {
     if c.is_ascii_uppercase() {
         return 27 + u32::from(c) - 65;
     }
@@ -51,24 +51,25 @@ fn letter_to_score(c: char) -> u32 {
     return 0;
 }
 
-fn common_letters(strs: &[&str]) -> u32 {
-    let mut count: [usize; 52] = [0; 52];
+fn string_to_encoded(s: &str) -> u64 {
+    let mut letters = 0;
+    for c in s.chars() {
+        letters = letters | (1 << (rank(c) - 1));
+    }
+    return letters;
+}
 
-    for s in strs {
-        let mut letters: [usize; 52] = [0; 52];
-        for c in s.chars() {
-            letters[letter_to_score(c) as usize - 1] = 1;
-        }
-        for (i, c) in letters.iter().enumerate() {
-            count[i] += c;
+fn common(strs: &[&str]) -> u32 {
+    let v = strs
+        .iter()
+        .map(|s| string_to_encoded(s))
+        .reduce(|a, b| a & b)
+        .unwrap();
+
+    for i in 0..64 {
+        if (v & (1 << i)) > 0 {
+            return i + 1;
         }
     }
-
-    for (i, c) in count.iter().enumerate() {
-        if *c == strs.len() {
-            return i as u32 + 1;
-        }
-    }
-    println!("UHOH");
     return 0;
 }
