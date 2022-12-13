@@ -59,6 +59,7 @@ fn cmp(left: &Data, right: &Data) -> Ordering {
         Data::List(l) => {
             match right {
                 Data::List(r) => {
+                    // Both lists
                     for (l, r) in zip(l.iter(), r.iter()) {
                         let v = cmp(l, r);
 
@@ -67,17 +68,10 @@ fn cmp(left: &Data, right: &Data) -> Ordering {
                         }
                     }
 
-                    if l.len() < r.len() {
-                        return Ordering::Less;
-                    }
-
-                    if r.len() < l.len() {
-                        return Ordering::Greater;
-                    }
-
-                    return Ordering::Equal;
+                    return l.len().cmp(&r.len());
                 }
                 Data::Int(r) => {
+                    // Wrap right
                     return cmp(left, &Data::List(vec![Data::Int(*r)]));
                 }
             };
@@ -85,9 +79,11 @@ fn cmp(left: &Data, right: &Data) -> Ordering {
         Data::Int(l) => {
             match right {
                 Data::List(_) => {
+                    // Wrap left
                     return cmp(&Data::List(vec![Data::Int(*l)]), right);
                 }
                 Data::Int(r) => {
+                    // Both ints
                     return l.cmp(r);
                 }
             };
@@ -107,6 +103,7 @@ fn main() {
     let mut idx = 1;
     let mut c = 0;
 
+    // Static lists that get inserted and find where they end up
     let sort_a = Data::List(vec![Data::List(vec![Data::Int(2)])]);
     let sort_b = Data::List(vec![Data::List(vec![Data::Int(6)])]);
 
@@ -132,11 +129,6 @@ fn main() {
         }
 
         let o = cmp(&left, &right);
-        /*println!("===============");
-        println!("IDX {} ORDERED {:?} ", idx, o);
-        println!("left: {:?}", left);
-        println!("right: {:?}", right);
-        */
 
         if o.is_lt() {
             idxs += idx;
@@ -155,7 +147,6 @@ fn main() {
         if cmp(&p, &sort_b).is_eq() {
             b = i + 1;
         }
-        //println!("{:?}", p);
     }
 
     println!("star2: {}", a * b);
